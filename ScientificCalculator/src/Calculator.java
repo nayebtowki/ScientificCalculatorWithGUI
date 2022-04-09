@@ -3,9 +3,14 @@ import javax.swing.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.Math.*;
 
-public class Calculator extends JFrame implements ActionListener {
+public class Calculator extends JFrame {
 
 	// Fields
 	JPanel mypanel;
@@ -23,29 +28,24 @@ public class Calculator extends JFrame implements ActionListener {
 	JButton mybuttonSin, mybuttonCos, mybuttonTan, mybuttonSqr, mybuttonCbr;
 
 	JButton mybuttonEqual, mybuttonClear, mybuttonBackSpace;
-	JButton mybuttonMc, mybuttonMr, mybuttonMm, mybuttonMp;
-	/** * * * ** * * *
-	 * MC = Memory Clear sets the memory to 0
-	 * MR = Memory Recall uses the number in memory, acts as if you had keyed in that number yourself
-	 * MM = Delete Memory Stored number from the memory
-	 * M+ = Adds numbers to the memory, and puts the result into memory
-	 * * * ** * * */
-	
+	JButton  mybuttonMr, mybuttonMp;
+	/**
+	 * *
+	 * MR = Memory Recall uses
+	 * the number in memory
+	 * MP = Adds numbers to the memory,
+	 */
+
 	JRadioButton myRadioButtonOn, myRadioButtonOff;
-
-	JTextField mytext1, mytext2;
-
-	Font font = new Font("Serif", Font.BOLD, 20);
-
-	// int count = 0;
-
-	double num = 0.0, result = 0.0, m1;
-	double temp, temp1, a;
-	int k=1;
-	boolean firstEntry = true, firstOperation = true, plus = false, minus = false, multiply = false, divide = false,
-			firstperiod = false;
-	String lastOperation = "", str;
+	double num, m1;
+	int k = 1;
+	String str, save, recall;
+	Font font = new Font("saxmono", Font.BOLD, 30);
+	// radiobuttongroup
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+
+	JLabel tf1, result;
+	Events e1 = new Events();
 
 	// constructor
 	public Calculator() {
@@ -53,8 +53,9 @@ public class Calculator extends JFrame implements ActionListener {
 		mypanel.setLayout(null);
 
 		// -------------------------------------
-
-		mybuttonNfac = new JButton("n!");
+		// set the buttons location
+		// set the width and height is 70*50 for each and every button
+		mybuttonNfac = new JButton("x!");
 		mybuttonNfac.setBounds(15, 490, 70, 50);
 
 		mybutton0 = new JButton("0");
@@ -69,7 +70,7 @@ public class Calculator extends JFrame implements ActionListener {
 
 		// -------------------------------------
 
-		mybuttonXpow = new JButton("x²");
+		mybuttonXpow = new JButton("x^2");
 		mybuttonXpow.setBounds(15, 440, 70, 50);
 
 		mybutton1 = new JButton("1");
@@ -79,7 +80,7 @@ public class Calculator extends JFrame implements ActionListener {
 		mybutton2.setBounds(155, 440, 70, 50);
 
 		mybutton3 = new JButton("3");
-		mybutton3.setBounds(225, 440,70, 50);
+		mybutton3.setBounds(225, 440, 70, 50);
 
 		mybuttonMinus = new JButton("-");
 		mybuttonMinus.setBounds(295, 390, 70, 50);
@@ -87,8 +88,8 @@ public class Calculator extends JFrame implements ActionListener {
 
 		// -------------------------------------
 
-		mybuttonXcube = new JButton("x³");
-		mybuttonXcube.setBounds(15, 390,70, 50);
+		mybuttonXcube = new JButton("x^3");
+		mybuttonXcube.setBounds(15, 390, 70, 50);
 
 		mybutton4 = new JButton("4");
 		mybutton4.setBounds(85, 390, 70, 50);
@@ -122,7 +123,7 @@ public class Calculator extends JFrame implements ActionListener {
 
 		// -------------------------------------
 
-		mybuttonLog = new JButton("Log");
+		mybuttonLog = new JButton("log");
 		mybuttonLog.setBounds(15, 290, 70, 50);
 
 		mybuttonPercent = new JButton("%");
@@ -134,7 +135,7 @@ public class Calculator extends JFrame implements ActionListener {
 		mybuttonlastb = new JButton(")");
 		mybuttonlastb.setBounds(225, 290, 70, 50);
 
-		mybuttonpi = new JButton("π");
+		mybuttonpi = new JButton("pi");
 		mybuttonpi.setBounds(295, 240, 70, 50);
 
 		// -------------------------------------
@@ -148,36 +149,29 @@ public class Calculator extends JFrame implements ActionListener {
 		mybuttonTan = new JButton("tan");
 		mybuttonTan.setBounds(155, 240, 70, 50);
 
-		mybuttonSqr = new JButton("\u221a");//sqr root
+		mybuttonSqr = new JButton("√");// sqr root
 		mybuttonSqr.setBounds(225, 240, 70, 50);
 
-		mybuttonCbr = new JButton("∛");
+		mybuttonCbr = new JButton("3√");
 		mybuttonCbr.setBounds(155, 190, 70, 50);
-		
+
 		// -------------------------------------
-		mybuttonBackSpace = new JButton("\u232b");
+		mybuttonBackSpace = new JButton("Del");
 		mybuttonBackSpace.setBounds(225, 190, 70, 50);
 		mybuttonBackSpace.setForeground(Color.decode("0xFF0000"));
-		
-		mybuttonClear = new JButton("C");
+
+		mybuttonClear = new JButton("CLR");
 		mybuttonClear.setBounds(295, 190, 70, 50);
 		mybuttonClear.setForeground(Color.decode("0xFF0000"));
 		mybuttonEqual = new JButton("=");
 		mybuttonEqual.setBounds(155, 140, 210, 50);
 
-		
-		mybuttonMc = new JButton("MC");
-		mybuttonMc.setBounds(15, 140, 70, 50);
-
 		mybuttonMr = new JButton("MR");
-		mybuttonMr.setBounds(85, 140, 70, 50);
+		mybuttonMr.setBounds(15, 140, 140, 50);
 
 		mybuttonMp = new JButton("M+");
-		mybuttonMp.setBounds(15, 190, 70, 50);
+		mybuttonMp.setBounds(15, 190, 140, 50);
 
-		mybuttonMm = new JButton("M-");
-		mybuttonMm.setBounds(85, 190, 70, 50);
-		
 		myRadioButtonOn = new JRadioButton("ON", true);
 		buttonGroup.add(myRadioButtonOn);
 		myRadioButtonOn.setBounds(15, 100, 50, 30);
@@ -186,25 +180,22 @@ public class Calculator extends JFrame implements ActionListener {
 		buttonGroup.add(myRadioButtonOff);
 		myRadioButtonOff.setBounds(100, 100, 50, 30);
 
-		mytext1 = new JTextField(40);
-		mytext1.setText("0.0");
-		mytext1.setBounds(15, 15, 350, 40);
-		mytext1.setEditable(false);
-		mytext1.setFont(font);
-		mytext1.setBackground(Color.decode("0x457EAC"));
-		mytext2 = new JTextField(20);
-		mytext2.setText("");
-		mytext2.setBounds(15, 55, 350, 40);
-		mytext2.setEditable(false);
-		mytext2.setFont(font);
-		mytext2.setBackground(Color.decode("0x9191E9"));
+		tf1 = new JLabel("", SwingConstants.LEFT);
+		tf1.setText("");
+		tf1.setBounds(15, 15, 350, 40);
+		tf1.setFont(font);
+		tf1.setForeground(Color.decode("0xA9A9A9"));
+		result = new JLabel("", SwingConstants.RIGHT);
+		result.setText("");
+		result.setBounds(15, 55, 350, 40);
+		result.setFont(font);
 
 		// -------------------------------------
 
 		// -------------------------------------
 
 		add(mypanel);
-
+		// adding buttons to the panel
 		mypanel.add(mybutton0);
 		mypanel.add(mybuttonDecimal);
 		mypanel.add(mybuttonPlus);
@@ -243,60 +234,57 @@ public class Calculator extends JFrame implements ActionListener {
 		mypanel.add(mybuttonEqual);
 		mypanel.add(mybuttonClear);
 		mypanel.add(mybuttonBackSpace);
-		mypanel.add(mybuttonMc);
 		mypanel.add(mybuttonMr);
 		mypanel.add(mybuttonMp);
-		mypanel.add(mybuttonMm);
-		
+
 		mypanel.add(myRadioButtonOff);
 		mypanel.add(myRadioButtonOn);
 
-		mypanel.add(mytext1);
-		mypanel.add(mytext2);
+		mypanel.add(tf1);
+		mypanel.add(result);
+		// add the action listener to the buttons
 
-		mybutton1.addActionListener(this);
-		mybutton2.addActionListener(this);
-		mybutton3.addActionListener(this);
-		mybutton4.addActionListener(this);
-		mybutton5.addActionListener(this);
-		mybutton6.addActionListener(this);
-		mybutton7.addActionListener(this);
-		mybutton8.addActionListener(this);
-		mybutton9.addActionListener(this);
-		mybutton0.addActionListener(this);
+		mybutton1.addActionListener(e1);
+		mybutton2.addActionListener(e1);
+		mybutton3.addActionListener(e1);
+		mybutton4.addActionListener(e1);
+		mybutton5.addActionListener(e1);
+		mybutton6.addActionListener(e1);
+		mybutton7.addActionListener(e1);
+		mybutton8.addActionListener(e1);
+		mybutton9.addActionListener(e1);
+		mybutton0.addActionListener(e1);
 
-		mybuttonNfac.addActionListener(this);
-		mybuttonXpow.addActionListener(this);
-		mybuttonXcube.addActionListener(this);
-		mybuttonXtopowY.addActionListener(this);
-		mybuttonPercent.addActionListener(this);
-		mybuttonfirstb.addActionListener(this);
-		mybuttonlastb.addActionListener(this);
-		mybuttonpi.addActionListener(this);
-		mybuttonLog.addActionListener(this);
-		mybuttonDecimal.addActionListener(this);
+		mybuttonNfac.addActionListener(e1);
+		mybuttonXpow.addActionListener(e1);
+		mybuttonXcube.addActionListener(e1);
+		mybuttonXtopowY.addActionListener(e1);
+		mybuttonPercent.addActionListener(e1);
+		mybuttonfirstb.addActionListener(e1);
+		mybuttonlastb.addActionListener(e1);
+		mybuttonpi.addActionListener(e1);
+		mybuttonLog.addActionListener(e1);
+		mybuttonDecimal.addActionListener(e1);
 
-		mybuttonSin.addActionListener(this);
-		mybuttonCos.addActionListener(this);
-		mybuttonTan.addActionListener(this);
-		mybuttonSqr.addActionListener(this);
-		mybuttonCbr.addActionListener(this);
+		mybuttonSin.addActionListener(e1);
+		mybuttonCos.addActionListener(e1);
+		mybuttonTan.addActionListener(e1);
+		mybuttonSqr.addActionListener(e1);
+		mybuttonCbr.addActionListener(e1);
 
-		mybuttonPlus.addActionListener(this);
-		mybuttonMinus.addActionListener(this);
-		mybuttonMultiply.addActionListener(this);
-		mybuttonDivide.addActionListener(this);
+		mybuttonPlus.addActionListener(e1);
+		mybuttonMinus.addActionListener(e1);
+		mybuttonMultiply.addActionListener(e1);
+		mybuttonDivide.addActionListener(e1);
 
-		mybuttonEqual.addActionListener(this);
-		mybuttonClear.addActionListener(this);
-		mybuttonBackSpace.addActionListener(this);
+		mybuttonEqual.addActionListener(e1);
+		mybuttonClear.addActionListener(e1);
+		mybuttonBackSpace.addActionListener(e1);
 
-		mybuttonMc.addActionListener(this);
-		mybuttonMr.addActionListener(this);
-		mybuttonMp.addActionListener(this);
-		mybuttonMm.addActionListener(this);
-		
-		
+		mybuttonMr.addActionListener(e1);
+		mybuttonMp.addActionListener(e1);
+
+		// this radio button turn off the calculator
 		myRadioButtonOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mybutton1.setEnabled(false);
@@ -335,22 +323,19 @@ public class Calculator extends JFrame implements ActionListener {
 				mybuttonEqual.setEnabled(false);
 				mybuttonClear.setEnabled(false);
 				mybuttonBackSpace.setEnabled(false);
-				
-				mybuttonMc.setEnabled(false);
+
 				mybuttonMr.setEnabled(false);
 				mybuttonMp.setEnabled(false);
-				mybuttonMm.setEnabled(false);
-				
-				
+
 				if (e.getSource() == myRadioButtonOff) {
-					mytext1.setText(null);
-					mytext2.setText(null);
-					mytext1.setEnabled(false);
-					mytext2.setEnabled(false);
+					tf1.setText(null);
+					result.setText(null);
+					tf1.setEnabled(false);
+					result.setEnabled(false);
 				}
 			}
 		});
-
+		// this radio button turn on the calculator
 		myRadioButtonOn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mybutton1.setEnabled(true);
@@ -389,17 +374,13 @@ public class Calculator extends JFrame implements ActionListener {
 				mybuttonEqual.setEnabled(true);
 				mybuttonClear.setEnabled(true);
 				mybuttonBackSpace.setEnabled(true);
-				
-
-				mybuttonMc.setEnabled(true);
 				mybuttonMr.setEnabled(true);
 				mybuttonMp.setEnabled(true);
-				mybuttonMm.setEnabled(true);
 				if (e.getSource() == myRadioButtonOn) {
-					mytext1.setText("0.0");
-					mytext2.setText(null);
-					mytext1.setEnabled(true);
-					mytext2.setEnabled(true);
+					tf1.setText("");
+					result.setText(null);
+					tf1.setEnabled(true);
+					result.setEnabled(true);
 				}
 
 			}
@@ -409,383 +390,169 @@ public class Calculator extends JFrame implements ActionListener {
 
 	// methods
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		// GUI for calculator
 		JFrame Calculator = new Calculator();
-
-		Calculator.setTitle("Calculator");
-		Calculator.setSize(400, 590);
-		Calculator.setLocation(500, 10);
+		Calculator.setTitle("Scientic Calculator-GUI");
+		Calculator.setSize(400, 590);// width and height 400*590
+		Calculator.setLocationRelativeTo(null);// calculator will be center of the screen
 		Calculator.setVisible(true);
 		Calculator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == mybutton0) {
-			if (firstEntry == true) {
-				mytext1.setText("0");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "0");
-		} else if (e.getSource() == mybutton1) {
-			if (firstEntry == true) {
-				mytext1.setText("1");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "1");
-		} else if (e.getSource() == mybutton2) {
-			if (firstEntry == true) {
-				mytext1.setText("2");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "2");
-		} else if (e.getSource() == mybutton3) {
-			if (firstEntry == true) {
-				mytext1.setText("3");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "3");
-		} else if (e.getSource() == mybutton4) {
-			if (firstEntry == true) {
-				mytext1.setText("4");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "4");
-		} else if (e.getSource() == mybutton5) {
-			if (firstEntry == true) {
-				mytext1.setText("5");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "5");
-		} else if (e.getSource() == mybutton6) {
-			if (firstEntry == true) {
-				mytext1.setText("6");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "6");
-		} else if (e.getSource() == mybutton7) {
-			if (firstEntry == true) {
-				mytext1.setText("7");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "7");
-		} else if (e.getSource() == mybutton8) {
-			if (firstEntry == true) {
-				mytext1.setText("8");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "8");
-		} else if (e.getSource() == mybutton9) {
-			if (firstEntry == true) {
-				mytext1.setText("9");
-				firstEntry = false;
-			} else
-				mytext1.setText(mytext1.getText() + "9");
-		}
-		//////////////////////////////////////////////////
+	public static void saveData(String data) throws IOException {
+		FileWriter saveHandle = new FileWriter(
+				"\\C:\\Users\\User\\git\\Scientific-Calculator-with-GUI-Java\\Memory.txt");
+		BufferedWriter bufferedWriterSaveData = new BufferedWriter(saveHandle);
+		bufferedWriterSaveData.write(data);
+		bufferedWriterSaveData.close();
+		saveHandle.close();
 
-		else if (e.getSource() == mybuttonDecimal) {
-			if (firstperiod != true) {
-				mytext1.setText(mytext1.getText() + ".");
-				firstperiod = true;
-			}
-		}
-
-		//////////////////////////////////////////////////
-		// Arithmetic Operations
-
-		else if (e.getSource() == mybuttonPlus) {
-			if (lastOperation.equalsIgnoreCase("+")) {
-				num = num + Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "+";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("-")) {
-				num = num - Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "+";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("*")) {
-				num = num * Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "+";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("/")) {
-				num = num / Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "+";
-				firstperiod = false;
-			} else {
-				num = Double.parseDouble(mytext1.getText());
-				mytext1.setText("");
-				lastOperation = "+";
-				firstperiod = false;
-			}
-		} else if (e.getSource() == mybuttonMinus) {
-			if (lastOperation.equalsIgnoreCase("+")) {
-				num = num + Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "-";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("-")) {
-				num = num - Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "-";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("*")) {
-				num = num * Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "-";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("/")) {
-				num = num / Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "-";
-				firstperiod = false;
-			} else {
-				num = Double.parseDouble(mytext1.getText());
-				mytext1.setText("");
-				lastOperation = "-";
-				firstperiod = false;
-			}
-		} else if (e.getSource() == mybuttonMultiply) {
-			if (lastOperation.equalsIgnoreCase("+")) {
-				num = num + Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "*";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("-")) {
-				num = num - Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "*";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("*")) {
-				num = num * Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "*";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("/")) {
-				num = num / Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "*";
-				firstperiod = false;
-			} else {
-				num = Double.parseDouble(mytext1.getText());
-				mytext1.setText("");
-				lastOperation = "*";
-				firstperiod = false;
-			}
-		} else if (e.getSource() == mybuttonDivide) {
-			if (lastOperation.equalsIgnoreCase("+")) {
-				num = num + Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "/";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("-")) {
-				num = num - Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "/";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("*")) {
-				num = num * Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "/";
-				firstperiod = false;
-			} else if (lastOperation.equalsIgnoreCase("/")) {
-				num = num / Double.parseDouble(mytext1.getText());
-				mytext2.setText(String.valueOf(num));
-				mytext1.setText("");
-				lastOperation = "/";
-				firstperiod = false;
-			} else {
-				num = Double.parseDouble(mytext1.getText());
-				mytext1.setText("");
-				lastOperation = "/";
-				firstperiod = false;
-			}
-		}
-
-		//////////////////////////////////////////////////
-		// Trigonometric, Power and logs Operations
-
-		else if (e.getSource() == mybuttonpi) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.PI * (Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonSqr) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.sqrt(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonCbr) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.cbrt(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonSin) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.sin(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonCos) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.cos(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonTan) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.tan(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonLog) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.log(Double.parseDouble(mytext1.getText()));
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonPercent) {
-			double n1 = Double.parseDouble(mytext1.getText());
-			n1 = (n1 * num) / 100;
-			str = String.valueOf(n1);
-			mytext1.setText("");
-			mytext2.setText(str);
-		} else if (e.getSource() == mybuttonXpow) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.pow(Double.parseDouble(mytext1.getText()), 2);
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		} else if (e.getSource() == mybuttonXcube) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = Math.pow(Double.parseDouble(mytext1.getText()), 3);
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + a);
-			}
-		}
-		if (e.getSource() == mybuttonNfac) {
-			if (mytext1.getText().equals("")) {
-				mytext1.setText("");
-			} else {
-				a = (Double.parseDouble(mytext1.getText()));
-				double f = 1;
-				while (a != 0) {
-					f = f * a;
-					a--;
-				}
-				mytext1.setText("");
-				mytext2.setText(mytext2.getText() + f);
-			}
-		}
-
-		else if (e.getSource() == mybuttonEqual) {
-			if (lastOperation.equals("+"))
-				mytext2.setText(String.valueOf(num + Double.parseDouble(mytext1.getText())));
-			else if (lastOperation.equals("-"))
-				mytext2.setText(String.valueOf(num - Double.parseDouble(mytext1.getText())));
-			else if (lastOperation.equals("*"))
-				mytext2.setText(String.valueOf(num * Double.parseDouble(mytext1.getText())));
-			else if (lastOperation.equals("/"))
-				mytext2.setText(String.valueOf(num / Double.parseDouble(mytext1.getText())));
-			firstEntry = true;
-			firstperiod = false;
-			// lastOperation = "";
-			// firstOperation = true;
-			result = 0;
-		} 
-		
-		/////////////////
-
-		else if (e.getSource() == mybuttonMc) {
-			m1 = 0;
-			mytext2.setText("");
-		}
-		else if (e.getSource() == mybuttonMr) {
-			mytext1.setText("");
-			mytext2.setText(mytext1.getText() + m1);
-		}
-		if (e.getSource() == mybuttonMp) {
-			if (k == 1) {
-				m1 = Double.parseDouble(mytext2.getText());
-				k++;
-			} else {
-				m1 += Double.parseDouble(mytext2.getText());
-				mytext2.setText("" + m1);
-			}
-		}
-		if (e.getSource() == mybuttonMm) {
-			if (k == 1) {
-				m1 = Double.parseDouble(mytext2.getText());
-				k++;
-			} else {
-				m1 -= Double.parseDouble(mytext2.getText());
-				mytext2.setText("" + m1);
-			}
-		}
-		
-		/////////////////
-		  else if(e.getSource()==mybuttonBackSpace)
-	      {
-	          int len;
-	          str=mytext1.getText();
-	          len=str.length();
-	          if(len>=1)
-	            str=str.substring(0,len-1);
-	          mytext1.setText(str);
-	      }
-		else if (e.getSource() == mybuttonClear) {
-			mytext1.setText("0.0");
-			mytext2.setText(null);
-			firstEntry = true;
-			firstperiod = false;
-			firstOperation = true;
-			plus = false;
-			minus = false;
-			multiply = false;
-			divide = false;
-			// lastOperation = "";
-			// firstOperation = true;
-			result = 0;
-			num = 0.0;
-		}
 	}
 
+	public static String readData() throws IOException {
+		FileReader recallHandle = new FileReader(
+				"\\C:\\Users\\User\\git\\Scientific-Calculator-with-GUI-Java\\Memory.txt");
+		BufferedReader bufferedRaderRecallData = new BufferedReader(recallHandle);
+		String num = bufferedRaderRecallData.readLine();
+		bufferedRaderRecallData.close();
+		recallHandle.close();
+		return num;
+
+	}
+
+	private class Events implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String str1 = tf1.getText();
+			if (e.getSource() == mybuttonBackSpace) {
+				if (str1.length() > 0) {
+					tf1.setText(str1.substring(0, str1.length() - 1));
+				}
+			}
+			if (e.getSource() == mybuttonClear) {
+				tf1.setText("");
+				result.setText("");
+			}
+			if (e.getSource() == mybuttonEqual) {
+				if (!tf1.getText().isEmpty()) {
+					try {
+						result.setText(String.valueOf((long) Expression.eval(tf1.getText())));
+					} catch (Exception exception) {
+						result.setText(exception.getMessage());
+					}
+				}
+			}
+			if (e.getSource() == mybutton7) {
+				tf1.setText(str1 + "7");
+			}
+			if (e.getSource() == mybutton8) {
+				tf1.setText(str1 + "8");
+			}
+			if (e.getSource() == mybutton9) {
+				tf1.setText(str1 + "9");
+			}
+			if (e.getSource() == mybuttonPlus) {
+				tf1.setText(str1 + "+");
+			}
+			if (e.getSource() == mybutton4) {
+				tf1.setText(str1 + "4");
+			}
+			if (e.getSource() == mybutton5) {
+				tf1.setText(str1 + "5");
+			}
+			if (e.getSource() == mybutton6) {
+				tf1.setText(str1 + "6");
+			}
+			if (e.getSource() == mybuttonMinus) {
+				tf1.setText(str1 + "-");
+			}
+			if (e.getSource() == mybutton1) {
+				tf1.setText(str1 + "1");
+			}
+			if (e.getSource() == mybutton2) {
+				tf1.setText(str1 + "2");
+			}
+			if (e.getSource() == mybutton3) {
+				tf1.setText(str1 + "3");
+			}
+			if (e.getSource() == mybuttonMultiply) {
+				tf1.setText(str1 + "*");
+			}
+			if (e.getSource() == mybutton0) {
+				tf1.setText(str1 + "0");
+			}
+			if (e.getSource() == mybuttonDecimal) {
+				tf1.setText(str1 + ".");
+			}
+
+			///
+			if (e.getSource() == mybuttonDivide) {
+				tf1.setText(str1 + "/");
+			}
+			if (e.getSource() == mybuttonXpow) {
+				tf1.setText(str1 + "^2");
+			}
+			if (e.getSource() == mybuttonXcube) {
+				tf1.setText(str1 + "^3");
+			}
+			if (e.getSource() == mybuttonXtopowY) {
+				tf1.setText(str1 + "^");
+			}
+			if (e.getSource() == mybuttonfirstb) {
+				tf1.setText(str1 + "(");
+			}
+			if (e.getSource() == mybuttonSqr) {
+				tf1.setText(str1 + "sqrt(");
+			}
+			if (e.getSource() == mybuttonCbr) {
+				tf1.setText(str1 + "cbrt(");
+			}
+			if (e.getSource() == mybuttonNfac) {
+				tf1.setText(str1 + "!");
+			}
+			if (e.getSource() == mybuttonlastb) {
+				tf1.setText(str1 + ")");
+			}
+			if (e.getSource() == mybuttonSin) {
+				tf1.setText(str1 + "sin(");
+			}
+			if (e.getSource() == mybuttonCos) {
+				tf1.setText(str1 + "cos(");
+			}
+			if (e.getSource() == mybuttonTan) {
+				tf1.setText(str1 + "tan(");
+			}
+			if (e.getSource() == mybuttonLog) {
+				tf1.setText(str1 + "log(");
+			}
+			if (e.getSource() == mybuttonpi) {
+				tf1.setText(str1 + Math.PI);
+			}
+			if (e.getSource() == mybuttonPercent) {
+				double n1 = Double.parseDouble(str1);
+				n1 = (n1 * num) / 100;
+				str = String.valueOf(n1);
+				tf1.setText("");
+				result.setText(str);
+			}
+			if (e.getSource() == mybuttonMr) {
+				try {
+					recall = readData();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				result.setText(recall);
+			}
+			if (e.getSource() == mybuttonMp) {
+				save = result.getText();
+				try {
+					saveData(save);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
 }
